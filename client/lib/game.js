@@ -35,6 +35,7 @@ Game.prototype.loop = function() {
   this.canvas.clear();
   this.update();
   this.render();
+  this.canvas.commit();
   requestAnimationFrame(this.loop.bind(this));
 }
 

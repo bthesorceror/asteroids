@@ -12,10 +12,24 @@ $(function() {
 });
 
 },{"./lib/canvas":2,"./lib/game":3,"jquery":8}],2:[function(require,module,exports){
+var $ = require('jquery');
+
 function Canvas($el) {
   this.$el     = $el;
   this.el      = this.$el[0];
-  this.context = this.el.getContext('2d');
+
+  this.canvas  = $('<canvas />').attr({
+    width: this.width(),
+    height: this.height()
+  })[0];
+
+  this.context = this.canvas.getContext('2d');
+
+  this.shownContext = this.el.getContext('2d');
+}
+
+Canvas.prototype.commit = function() {
+  this.shownContext.drawImage(this.canvas, 0, 0);
 }
 
 Canvas.prototype.clear = function() {
@@ -55,7 +69,7 @@ Canvas.prototype.height = function() {
 
 module.exports = Canvas;
 
-},{}],3:[function(require,module,exports){
+},{"jquery":8}],3:[function(require,module,exports){
 var ak   = require('arcade_keys');
 var Ship = require('./ship');
 
@@ -93,6 +107,7 @@ Game.prototype.loop = function() {
   this.canvas.clear();
   this.update();
   this.render();
+  this.canvas.commit();
   requestAnimationFrame(this.loop.bind(this));
 }
 
@@ -330,7 +345,11 @@ initialize.keys = {
   right: 39,
   up: 38,
   down: 40,
-  space: 32
+  space: 32,
+  w: 87,
+  s: 83,
+  a: 65,
+  d: 68
 }
 
 module.exports = initialize;

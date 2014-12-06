@@ -1,7 +1,21 @@
+var $ = require('jquery');
+
 function Canvas($el) {
   this.$el     = $el;
   this.el      = this.$el[0];
-  this.context = this.el.getContext('2d');
+
+  this.canvas  = $('<canvas />').attr({
+    width: this.width(),
+    height: this.height()
+  })[0];
+
+  this.context = this.canvas.getContext('2d');
+
+  this.shownContext = this.el.getContext('2d');
+}
+
+Canvas.prototype.commit = function() {
+  this.shownContext.drawImage(this.canvas, 0, 0);
 }
 
 Canvas.prototype.clear = function() {
