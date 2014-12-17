@@ -1,12 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $ = require('jquery');
-
-var Canvas = require('./lib/canvas');
+var $      = require('jquery');
 var Game   = require('./lib/game');
+var Canvas = require('./lib/canvas');
+
+function createCanvas($el, height, width) {
+  var $canvas = $("<canvas />").attr({
+    height: height,
+    width: width
+  }).css({
+    margin: "auto",
+    height: height,
+    width: width,
+    display: "block",
+    position: "absolute",
+    top: 0,
+    left: "50%",
+    "margin-left": -width / 2
+  });
+
+  $el.append($canvas);
+
+  return new Canvas($canvas);
+}
 
 $(function() {
-  var canvas = new Canvas($('canvas#screen'));
-  var game   = new Game(canvas);
+  var $screen = $("#screen");
+  var createFunc = createCanvas.bind(null, $screen, 600, 800);
+  var game = new Game(createFunc);
 
   game.start();
 });
@@ -29,15 +49,22 @@ function Canvas($el) {
 }
 
 Canvas.prototype.commit = function() {
+  this.shownContext.clearRect(0, 0, this.width(), this.height());
   this.shownContext.drawImage(this.canvas, 0, 0);
+}
+
+Canvas.prototype.fill = function(color) {
+  this.isolatedState(function(context) {
+    context.fillStyle = color;
+
+    context.fillRect(
+      0, 0, this.width(), this.height());
+  });
 }
 
 Canvas.prototype.clear = function() {
   this.isolatedState(function(context) {
-    context.fillStyle = "#000";
-
-    context.fillRect(
-      0, 0, this.width(), this.height());
+    context.clearRect(0, 0, this.width(), this.height());
   });
 }
 
@@ -73,10 +100,10 @@ module.exports = Canvas;
 var ak   = require('arcade_keys');
 var Ship = require('./ship');
 
-function Game(canvas) {
-  this.canvas = canvas;
-  var player_x = canvas.width() / 2;
-  var player_y = canvas.height() / 2;
+function Game(createCanvas) {
+  this.background = createCanvas();
+  this.background.fill("#000");
+  this.background.commit();
 
   this.keys = ak([
     ak.keys.left,
@@ -85,9 +112,9 @@ function Game(canvas) {
     ak.keys.down
   ]);
 
-  this.player = new Ship(this.canvas, {
-    x: player_x,
-    y: player_y
+  this.player = new Ship(createCanvas(), {
+    x: 400,
+    y: 300
   }, "#F00");
 }
 
@@ -104,10 +131,8 @@ Game.prototype.start = function() {
 }
 
 Game.prototype.loop = function() {
-  this.canvas.clear();
   this.update();
   this.render();
-  this.canvas.commit();
   requestAnimationFrame(this.loop.bind(this));
 }
 
@@ -231,6 +256,7 @@ Ship.prototype.decelerate = function() {
 }
 
 Ship.prototype.update = function(keys) {
+  this.canvas.clear();
   if (keys.isPressed(ak.keys.left)) {
     this.turnLeft();
   } else if (keys.isPressed(ak.keys.right)) {
@@ -285,6 +311,8 @@ Ship.prototype.render = function() {
       this.strokePath(self.enginePoints());
     }
   });
+
+  this.canvas.commit();
 }
 
 module.exports = Ship;

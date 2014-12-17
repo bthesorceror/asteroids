@@ -15,15 +15,22 @@ function Canvas($el) {
 }
 
 Canvas.prototype.commit = function() {
+  this.shownContext.clearRect(0, 0, this.width(), this.height());
   this.shownContext.drawImage(this.canvas, 0, 0);
+}
+
+Canvas.prototype.fill = function(color) {
+  this.isolatedState(function(context) {
+    context.fillStyle = color;
+
+    context.fillRect(
+      0, 0, this.width(), this.height());
+  });
 }
 
 Canvas.prototype.clear = function() {
   this.isolatedState(function(context) {
-    context.fillStyle = "#000";
-
-    context.fillRect(
-      0, 0, this.width(), this.height());
+    context.clearRect(0, 0, this.width(), this.height());
   });
 }
 

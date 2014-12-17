@@ -86,6 +86,7 @@ Ship.prototype.decelerate = function() {
 }
 
 Ship.prototype.update = function(keys) {
+  this.canvas.clear();
   if (keys.isPressed(ak.keys.left)) {
     this.turnLeft();
   } else if (keys.isPressed(ak.keys.right)) {
@@ -140,6 +141,8 @@ Ship.prototype.render = function() {
       this.strokePath(self.enginePoints());
     }
   });
+
+  this.canvas.commit();
 }
 
 module.exports = Ship;

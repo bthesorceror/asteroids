@@ -1,10 +1,10 @@
 var ak   = require('arcade_keys');
 var Ship = require('./ship');
 
-function Game(canvas) {
-  this.canvas = canvas;
-  var player_x = canvas.width() / 2;
-  var player_y = canvas.height() / 2;
+function Game(createCanvas) {
+  this.background = createCanvas();
+  this.background.fill("#000");
+  this.background.commit();
 
   this.keys = ak([
     ak.keys.left,
@@ -13,9 +13,9 @@ function Game(canvas) {
     ak.keys.down
   ]);
 
-  this.player = new Ship(this.canvas, {
-    x: player_x,
-    y: player_y
+  this.player = new Ship(createCanvas(), {
+    x: 400,
+    y: 300
   }, "#F00");
 }
 
@@ -32,10 +32,8 @@ Game.prototype.start = function() {
 }
 
 Game.prototype.loop = function() {
-  this.canvas.clear();
   this.update();
   this.render();
-  this.canvas.commit();
   requestAnimationFrame(this.loop.bind(this));
 }
 
